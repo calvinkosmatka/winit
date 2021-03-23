@@ -4,9 +4,10 @@ use sctk::reexports::client::protocol::wl_keyboard::KeyState;
 
 use sctk::seat::keyboard::Event as KeyboardEvent;
 
-use crate::event::{ElementState, KeyboardInput, ModifiersState, WindowEvent};
+use crate::event::{ElementState, KeyEvent, WindowEvent};
 use crate::platform_impl::wayland::event_loop::WinitState;
 use crate::platform_impl::wayland::{self, DeviceId};
+use crate::keyboard::ModifiersState;
 
 use super::keymap;
 use super::KeyboardInner;
@@ -68,35 +69,28 @@ pub(super) fn handle_keyboard(
                 _ => unreachable!(),
             };
 
-            let virtual_keycode = keymap::keysym_to_vkey(keysym);
+            let physical_key = keymap::rawkey_to_physical(rawkey);
+            let logical_key = keymap::keysym_to_lkey(keysym);
+            let location = keymap::keysym_to_location(keysym);
 
             event_sink.push_window_event(
-                #[allow(deprecated)]
                 WindowEvent::KeyboardInput {
                     device_id: crate::event::DeviceId(crate::platform_impl::DeviceId::Wayland(
                         DeviceId,
                     )),
-                    input: KeyboardInput {
+                    event: KeyEvent {
+                        physical_key,
+                        logical_key,
+                        location,
+                        text: logical_key.to_text(),
                         state,
-                        scancode: rawkey,
-                        virtual_keycode,
-                        modifiers: *inner.modifiers_state.borrow(),
+                        repeat: false,
+                        platform_specific: (),
                     },
                     is_synthetic: false,
                 },
                 window_id,
             );
-
-            // Send ReceivedCharacter event only on ElementState::Pressed.
-            if ElementState::Released == state {
-                return;
-            }
-
-            if let Some(txt) = utf8 {
-                for ch in txt.chars() {
-                    event_sink.push_window_event(WindowEvent::ReceivedCharacter(ch), window_id);
-                }
-            }
         }
         KeyboardEvent::Repeat {
             rawkey,
@@ -109,30 +103,28 @@ pub(super) fn handle_keyboard(
                 None => return,
             };
 
-            let virtual_keycode = keymap::keysym_to_vkey(keysym);
+            let physical_key = keymap::rawkey_to_physical(rawkey);
+            let logical_key = keymap::keysym_to_lkey(keysym);
+            let location = keymap::keysym_to_location(keysym);
 
             event_sink.push_window_event(
-                #[allow(deprecated)]
                 WindowEvent::KeyboardInput {
                     device_id: crate::event::DeviceId(crate::platform_impl::DeviceId::Wayland(
                         DeviceId,
                     )),
-                    input: KeyboardInput {
+                    event: KeyEvent {
+                        physical_key,
+                        logical_key,
+                        location,
+                        text: logical_key.to_text(),
                         state: ElementState::Pressed,
-                        scancode: rawkey,
-                        virtual_keycode,
-                        modifiers: *inner.modifiers_state.borrow(),
+                        repeat: false,
+                        platform_specific: (),
                     },
                     is_synthetic: false,
                 },
                 window_id,
             );
-
-            if let Some(txt) = utf8 {
-                for ch in txt.chars() {
-                    event_sink.push_window_event(WindowEvent::ReceivedCharacter(ch), window_id);
-                }
-            }
         }
         KeyboardEvent::Modifiers { modifiers } => {
             let modifiers = ModifiersState::from(modifiers);

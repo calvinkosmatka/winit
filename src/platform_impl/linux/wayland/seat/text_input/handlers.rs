@@ -69,9 +69,10 @@ pub(super) fn handle_text_input(
                 _ => return,
             };
 
-            for ch in text.chars() {
+            // not really sure what this event means
+            /*for ch in text.chars() {
                 event_sink.push_window_event(WindowEvent::ReceivedCharacter(ch), window_id);
-            }
+            }*/
         }
         _ => (),
     }
