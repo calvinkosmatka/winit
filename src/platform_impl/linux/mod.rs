@@ -500,6 +500,10 @@ impl Window {
             &Window::Wayland(ref window) => RawWindowHandle::Wayland(window.raw_window_handle()),
         }
     }
+
+    pub fn reset_dead_keys(&self) {
+
+    }
 }
 
 #[cfg(feature = "x11")]
@@ -771,3 +775,5 @@ fn is_main_thread() -> bool {
 fn is_main_thread() -> bool {
     std::thread::current().name() == Some("main")
 }
+
+pub type KeyEventExtra = ();
