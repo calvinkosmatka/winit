@@ -1,6 +1,6 @@
 //! Convert Wayland keys to winit keys.
 
-use crate::keyboard::{Key, KeyLocation, KeyCode, NativeKeyCode};
+use crate::keyboard::{Key, KeyCode, KeyLocation, NativeKeyCode};
 
 pub fn keysym_to_lkey(keysym: u32) -> Key<'static> {
     use sctk::seat::keyboard::keysyms;
@@ -271,4 +271,3 @@ pub fn keysym_to_location(keysym: u32) -> KeyLocation {
         _ => KeyLocation::Standard,
     }
 }
-

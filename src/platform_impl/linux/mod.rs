@@ -501,9 +501,7 @@ impl Window {
         }
     }
 
-    pub fn reset_dead_keys(&self) {
-
-    }
+    pub fn reset_dead_keys(&self) {}
 }
 
 #[cfg(feature = "x11")]
