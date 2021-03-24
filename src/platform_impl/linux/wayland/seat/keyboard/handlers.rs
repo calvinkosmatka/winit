@@ -5,9 +5,10 @@ use sctk::reexports::client::protocol::wl_keyboard::KeyState;
 use sctk::seat::keyboard::Event as KeyboardEvent;
 
 use crate::event::{ElementState, KeyEvent, WindowEvent};
+use crate::keyboard::{KeyCode, ModifiersState};
+use crate::platform::scancode::KeyCodeExtScancode;
 use crate::platform_impl::wayland::event_loop::WinitState;
 use crate::platform_impl::wayland::{self, DeviceId};
-use crate::keyboard::ModifiersState;
 
 use super::keymap;
 use super::KeyboardInner;
@@ -69,7 +70,6 @@ pub(super) fn handle_keyboard(
                 _ => unreachable!(),
             };
 
-            let physical_key = keymap::rawkey_to_physical(rawkey);
             let logical_key = keymap::keysym_to_lkey(keysym);
             let location = keymap::keysym_to_location(keysym);
 
@@ -79,7 +79,7 @@ pub(super) fn handle_keyboard(
                         DeviceId,
                     )),
                     event: KeyEvent {
-                        physical_key,
+                        physical_key: KeyCode::from_scancode(rawkey),
                         logical_key,
                         location,
                         text: logical_key.to_text(),
@@ -103,7 +103,6 @@ pub(super) fn handle_keyboard(
                 None => return,
             };
 
-            let physical_key = keymap::rawkey_to_physical(rawkey);
             let logical_key = keymap::keysym_to_lkey(keysym);
             let location = keymap::keysym_to_location(keysym);
 
@@ -113,7 +112,7 @@ pub(super) fn handle_keyboard(
                         DeviceId,
                     )),
                     event: KeyEvent {
-                        physical_key,
+                        physical_key: KeyCode::from_scancode(rawkey),
                         logical_key,
                         location,
                         text: logical_key.to_text(),
